@@ -111,12 +111,18 @@ if __name__ == "__main__":
     # Load environment variables
     load_dotenv()
 
-    # Start MCP server thread if stdin is not a TTY
+    # Start MCP server if stdin is not a TTY
     if not os.isatty(0):
-        logger.info("MCP client detected via stdin: Starting MCP server thread")
-        mcp_thread = threading.Thread(target=run_mcp_server, daemon=True)
-        mcp_thread.start()
-        logger.info("MCP server thread launched")
+        logger.info("MCP client detected via stdin: Starting MCP server")
+        # Import and run MCP server directly (not in thread)
+        from src.mcp_bridge import create_mcp_server
+        mcp = create_mcp_server()
+        logger.info("Starting MCP server with stdio transport")
+        try:
+            mcp.run(transport='stdio')
+        except Exception as e:
+            logger.error(f"MCP server failed: {e}", exc_info=True)
+            sys.exit(1)
     else:
         logger.info("Running in HTTP-only mode (stdin is a TTY)")
         # Ensure console handler is present if we started in HTTP mode
@@ -128,23 +134,38 @@ if __name__ == "__main__":
             console_handler.setFormatter(logging.Formatter(LOGGING_CONFIG['formatters']['default']['format']))
             root_logger.addHandler(console_handler)
 
-    # FastAPI/Uvicorn settings
-    host = os.getenv("HOST", "127.0.0.1")
-    port = int(os.getenv("PORT", 8000))
-    reload = os.getenv("RELOAD", "true").lower() == "true"
+        # FastAPI/Uvicorn settings
+        host = os.getenv("HOST", "127.0.0.1")
+        port = int(os.getenv("PORT", 8000))
+        reload = os.getenv("RELOAD", "true").lower() == "true"
 
-    logger.info(f"Starting FastAPI server on {host}:{port}...")
-    logger.info(f"Reload mode: {'Enabled' if reload else 'Disabled'}")
+        logger.info(f"Starting FastAPI server on {host}:{port}...")
+        logger.info(f"Reload mode: {'Enabled' if reload else 'Disabled'}")
 
-    # Run Uvicorn, telling it to use our logging config
-    try:
-        uvicorn.run(
-            "src.server:app", 
-            host=host, 
-            port=port, 
-            reload=reload, 
-            log_config=LOGGING_CONFIG # Pass our config dict
-        )
-    except Exception as e:
-        logger.error(f"Error starting FastAPI server: {e}", exc_info=True)
-        sys.exit(1) 
+        # Run Uvicorn, telling it to use our logging config
+        try:
+            uvicorn.run(
+                "src.server:app",
+                host=host,
+                port=port,
+                reload=reload,
+                log_config=LOGGING_CONFIG # Pass our config dict
+            )
+        except Exception as e:
+            logger.error(f"Error starting FastAPI server: {e}", exc_info=True)
+            sys.exit(1) 
+def main():
+    """Main entry point for the calendar MCP server when called as a script."""
+    if not os.isatty(0):
+        logger.info("MCP client detected via stdin: Starting MCP server")
+        from src.mcp_bridge import create_mcp_server
+        mcp = create_mcp_server()
+        logger.info("Starting MCP server with stdio transport")
+        try:
+            mcp.run(transport='stdio')
+        except Exception as e:
+            logger.error(f"MCP server failed: {e}", exc_info=True)
+            sys.exit(1)
+    else:
+        logger.info("Running in HTTP mode (stdin is a TTY)")
+        uvicorn.run("src.server:app", host="127.0.0.1", port=8000)

@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "iflow-mcp_deciduus-calendar-mcp"
+version = "0.1.0"
+description = "Google Calendar MCP Server - Python implementation providing calendar operations via MCP protocol"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "AGPL-3.0"}
+authors = [
+    {name = "deciduus", email = "deciduusleaf@gmail.com"}
+]
+keywords = ["mcp", "calendar", "google-calendar", "model-context-protocol"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "google-api-python-client",
+    "google-auth-oauthlib",
+    "google-auth-httplib2",
+    "fastapi",
+    "uvicorn[standard]",
+    "python-dateutil",
+    "mcp>=1.0.0",
+]
+
+[project.scripts]
+iflow-mcp_deciduus-calendar-mcp = "run_server:main"
+
+[project.urls]
+Homepage = "https://github.com/deciduus/calendar-mcp"
+Repository = "https://github.com/deciduus/calendar-mcp"
+Issues = "https://github.com/deciduus/calendar-mcp/issues"
+
+[tool.setuptools]
+packages = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["*.json", "*.yaml", "*.yml"]
