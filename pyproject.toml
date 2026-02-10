@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "iflow-mcp_deciduus-calendar-mcp"
-version = "0.1.0"
+version = "0.1.3"
 description = "Google Calendar MCP Server - Python implementation providing calendar operations via MCP protocol"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -35,7 +35,7 @@ dependencies = [
 ]
 
 [project.scripts]
-iflow-mcp_deciduus-calendar-mcp = "run_server:main"
+iflow-mcp_deciduus-calendar-mcp = "src.run_server:main"
 
 [project.urls]
 Homepage = "https://github.com/deciduus/calendar-mcp"
